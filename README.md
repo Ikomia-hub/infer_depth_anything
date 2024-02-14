@@ -22,7 +22,7 @@
 
 Depth Anything is a highly practical solution for robust monocular depth estimation.
 
-<img src="https://github.com/LiheYoung/Depth-Anything/blob/main/assets/teaser.png?raw=true"  alt="Illustrative image" width="70%" height="70%">
+<img src="https://github.com/LiheYoung/Depth-Anything/blob/main/assets/teaser.png?raw=true"  alt="Illustrative image" width="90%" height="90%">
 
 ## :rocket: Use with Ikomia API
 
@@ -46,7 +46,6 @@ wf = Workflow()
 
 # Add algorithm
 algo = wf.add_task(name="infer_depth_anything", auto_connect=True)
-
 
 # Run directly on your image
 wf.run_on(url="https://github.com/Ikomia-dev/notebooks/blob/main/examples/img/img_dog.png?raw=true")
