@@ -142,7 +142,7 @@ class InferDepthAnythingFactory(dataprocess.CTaskFactory):
         # relative path -> as displayed in Ikomia Studio algorithm tree
         self.info.path = "Plugins/Python/Depth"
         self.info.version = "1.0.0"
-        # self.info.icon_path = "your path to a specific icon"
+        self.info.icon_path = "images/depth_map.jpg"
         self.info.authors = "Yang, Lihe and Kang, Bingyi and Huang, Zilong and Xu, Xiaogang and Feng, Jiashi and Zhao, Hengshuang"
         self.info.article = "Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data"
         self.info.journal = "arXiv:2401.10891"
