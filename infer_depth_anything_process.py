@@ -153,6 +153,8 @@ class InferDepthAnythingFactory(dataprocess.CTaskFactory):
         # Code source repository
         self.info.repository = "https://github.com/Ikomia-hub/infer_depth_anything"
         self.info.original_repository = "https://github.com/LiheYoung/Depth-Anything"
+        # Python version
+        self.info.min_python_version = "3.10.0"
         # Keywords used for search
         self.info.keywords = "Depth Estimation, Pytorch, HuggingFace, map"
         self.info.algo_type = core.AlgoType.INFER
