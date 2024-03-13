@@ -100,6 +100,7 @@ class InferDepthAnything(dataprocess.C2dImageTask):
             self.device = torch.device(
                 "cuda") if param.cuda and torch.cuda.is_available() else torch.device("cpu")
             self.load_model(param)
+            param.update = False
 
         # prepare image for the model
         inputs = self.image_processor(images=src_image, return_tensors="pt").to(self.device)
