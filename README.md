@@ -65,7 +65,6 @@ Ikomia Studio offers a friendly UI with the same features as the API.
     - 'LiheYoung/depth-anything-small-hf' ; Param: 24.8M
     - 'LiheYoung/depth-anything-base-hf' ; Param: 97.5M	
     - 'LiheYoung/depth-anything-large-hf' ; Param: 335.3M
-
 - **cuda** (bool): If True, CUDA-based inference (GPU). If False, run on CPU.
 
 ```python
