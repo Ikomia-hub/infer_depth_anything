@@ -22,7 +22,8 @@
 
 Depth Anything is a highly practical solution for robust monocular depth estimation.
 
-<img src="https://github.com/LiheYoung/Depth-Anything/blob/main/assets/teaser.png?raw=true"  alt="Illustrative image" width="90%" height="90%">
+![depth example](https://github.com/LiheYoung/Depth-Anything/blob/main/assets/teaser.png?raw=true)
+
 
 ## :rocket: Use with Ikomia API
 

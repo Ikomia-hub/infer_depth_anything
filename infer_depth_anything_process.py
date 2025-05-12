@@ -11,6 +11,8 @@ from transformers import AutoImageProcessor, AutoModelForDepthEstimation
 # - Class to handle the algorithm parameters
 # - Inherits PyCore.CWorkflowTaskParam from Ikomia API
 # --------------------
+
+
 class InferDepthAnythingParam(core.CWorkflowTaskParam):
 
     def __init__(self):
@@ -51,7 +53,8 @@ class InferDepthAnything(dataprocess.C2dImageTask):
         else:
             self.set_param_object(copy.deepcopy(param))
 
-        self.model_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "weights")
+        self.model_folder = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "weights")
         self.image_processor = None
         self.model = None
         self.device = torch.device("cpu")
@@ -64,20 +67,20 @@ class InferDepthAnything(dataprocess.C2dImageTask):
     def load_model(self, param):
         try:
             self.image_processor = AutoImageProcessor.from_pretrained(
-                                    param.model_name,
-                                    cache_dir=self.model_folder,
-                                    local_files_only=True)
+                param.model_name,
+                cache_dir=self.model_folder,
+                local_files_only=True)
 
         except Exception as e:
-            print(f"Failed with error: {e}. Trying without the local_files_only parameter...")
+            print(
+                f"Failed with error: {e}. Trying without the local_files_only parameter...")
             self.image_processor = AutoImageProcessor.from_pretrained(
-                                        param.model_name,
-                                        cache_dir=self.model_folder)
+                param.model_name,
+                cache_dir=self.model_folder)
 
         self.model = AutoModelForDepthEstimation.from_pretrained(
-                                    param.model_name,
-                                    cache_dir=self.model_folder).to(self.device)
-
+            param.model_name,
+            cache_dir=self.model_folder).to(self.device)
 
     def run(self):
         # Main function of your algorithm
@@ -103,7 +106,8 @@ class InferDepthAnything(dataprocess.C2dImageTask):
             param.update = False
 
         # prepare image for the model
-        inputs = self.image_processor(images=src_image, return_tensors="pt").to(self.device)
+        inputs = self.image_processor(
+            images=src_image, return_tensors="pt").to(self.device)
 
         # Inference
         with torch.no_grad():
@@ -111,9 +115,10 @@ class InferDepthAnything(dataprocess.C2dImageTask):
             predicted_depth = outputs.predicted_depth
 
         # Convert depth map to RGB
-        depth = F.interpolate(predicted_depth[None], (h, w), mode='bilinear', align_corners=False)[0, 0]
+        depth = F.interpolate(
+            predicted_depth[None], (h, w), mode='bilinear', align_corners=False)[0, 0]
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
-        
+
         depth = depth.cpu().numpy().astype(np.uint8)
         depth_color = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
         depth_color_rgb = cv2.cvtColor(depth_color, cv2.COLOR_BGR2RGB)
@@ -142,7 +147,7 @@ class InferDepthAnythingFactory(dataprocess.CTaskFactory):
         self.info.short_description = "Depth Anything is a highly practical solution for robust monocular depth estimation"
         # relative path -> as displayed in Ikomia Studio algorithm tree
         self.info.path = "Plugins/Python/Depth"
-        self.info.version = "1.0.0"
+        self.info.version = "1.0.1"
         self.info.icon_path = "images/depth_map.jpg"
         self.info.authors = "Yang, Lihe and Kang, Bingyi and Huang, Zilong and Xu, Xiaogang and Feng, Jiashi and Zhao, Hengshuang"
         self.info.article = "Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data"
