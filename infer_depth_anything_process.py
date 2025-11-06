@@ -1,18 +1,20 @@
-import copy
-from ikomia import core, dataprocess, utils
-import cv2
-import numpy as np
 import os
+import copy
+
+import numpy as np
 import torch
 import torch.nn.functional as F
+
+from ikomia import core, dataprocess, utils
+import cv2
+
 from transformers import AutoImageProcessor, AutoModelForDepthEstimation
+
 
 # --------------------
 # - Class to handle the algorithm parameters
 # - Inherits PyCore.CWorkflowTaskParam from Ikomia API
 # --------------------
-
-
 class InferDepthAnythingParam(core.CWorkflowTaskParam):
 
     def __init__(self):
@@ -31,10 +33,10 @@ class InferDepthAnythingParam(core.CWorkflowTaskParam):
     def get_values(self):
         # Send parameters values to Ikomia Studio or API
         # Create the specific dict structure (string container)
-        params = {}
-        params["model_name"] = str(self.model_name)
-        params["cuda"] = str(self.cuda)
-
+        params = {
+            "model_name": str(self.model_name),
+            "cuda": str(self.cuda)
+        }
         return params
 
 
@@ -53,8 +55,7 @@ class InferDepthAnything(dataprocess.C2dImageTask):
         else:
             self.set_param_object(copy.deepcopy(param))
 
-        self.model_folder = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "weights")
+        self.model_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "weights")
         self.image_processor = None
         self.model = None
         self.device = torch.device("cpu")
@@ -64,23 +65,33 @@ class InferDepthAnything(dataprocess.C2dImageTask):
         # This is handled by the main progress bar of Ikomia Studio
         return 1
 
-    def load_model(self, param):
+    def _load_model(self):
+        param = self.get_param_object()
+        self.device = torch.device("cuda") if param.cuda and torch.cuda.is_available() else torch.device("cpu")
+
         try:
+
             self.image_processor = AutoImageProcessor.from_pretrained(
                 param.model_name,
                 cache_dir=self.model_folder,
-                local_files_only=True)
-
+                local_files_only=True
+            )
         except Exception as e:
             print(
                 f"Failed with error: {e}. Trying without the local_files_only parameter...")
             self.image_processor = AutoImageProcessor.from_pretrained(
                 param.model_name,
-                cache_dir=self.model_folder)
+                cache_dir=self.model_folder
+            )
 
         self.model = AutoModelForDepthEstimation.from_pretrained(
             param.model_name,
             cache_dir=self.model_folder).to(self.device)
+        param.update = False
+
+    def init_long_process(self):
+        self._load_model()
+        super().init_long_process()
 
     def run(self):
         # Main function of your algorithm
@@ -91,23 +102,19 @@ class InferDepthAnything(dataprocess.C2dImageTask):
         param = self.get_param_object()
 
         # Get input :
-        input = self.get_input(0)
+        img_input = self.get_input(0)
 
         # Get image from input/output (numpy array):
-        src_image = input.get_image()
+        src_image = img_input.get_image()
 
         h, w = src_image.shape[:2]
 
         # Load model
-        if param.update or self.model is None:
-            self.device = torch.device(
-                "cuda") if param.cuda and torch.cuda.is_available() else torch.device("cpu")
-            self.load_model(param)
-            param.update = False
+        if param.update:
+            self._load_model()
 
         # prepare image for the model
-        inputs = self.image_processor(
-            images=src_image, return_tensors="pt").to(self.device)
+        inputs = self.image_processor(images=src_image, return_tensors="pt").to(self.device)
 
         # Inference
         with torch.no_grad():
@@ -115,8 +122,7 @@ class InferDepthAnything(dataprocess.C2dImageTask):
             predicted_depth = outputs.predicted_depth
 
         # Convert depth map to RGB
-        depth = F.interpolate(
-            predicted_depth[None], (h, w), mode='bilinear', align_corners=False)[0, 0]
+        depth = F.interpolate(predicted_depth[None], (h, w), mode='bilinear', align_corners=False)[0, 0]
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
 
         depth = depth.cpu().numpy().astype(np.uint8)
@@ -147,7 +153,8 @@ class InferDepthAnythingFactory(dataprocess.CTaskFactory):
         self.info.short_description = "Depth Anything is a highly practical solution for robust monocular depth estimation"
         # relative path -> as displayed in Ikomia Studio algorithm tree
         self.info.path = "Plugins/Python/Depth"
-        self.info.version = "1.0.1"
+        self.info.version = "1.1.0"
+        self.info.min_ikomia_version = "0.15.0"
         self.info.icon_path = "images/depth_map.jpg"
         self.info.authors = "Yang, Lihe and Kang, Bingyi and Huang, Zilong and Xu, Xiaogang and Feng, Jiashi and Zhao, Hengshuang"
         self.info.article = "Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data"
@@ -165,6 +172,10 @@ class InferDepthAnythingFactory(dataprocess.CTaskFactory):
         self.info.keywords = "Depth Estimation, Pytorch, HuggingFace, map"
         self.info.algo_type = core.AlgoType.INFER
         self.info.algo_tasks = "OTHER"
+        self.info.hardware_config.min_cpu = 4
+        self.info.hardware_config.min_ram = 16
+        self.info.hardware_config.gpu_required = False
+        self.info.hardware_config.min_vram = 6
 
     def create(self, param=None):
         # Create algorithm object
