@@ -22,7 +22,7 @@
 
 Depth Anything is a highly practical solution for robust monocular depth estimation.
 
-![depth example](https://github.com/LiheYoung/Depth-Anything/blob/main/assets/teaser.png?raw=true)
+![depth example](https://raw.githubusercontent.com/LiheYoung/Depth-Anything/refs/heads/main/assets/teaser.png)
 
 
 ## :rocket: Use with Ikomia API
@@ -49,7 +49,7 @@ wf = Workflow()
 algo = wf.add_task(name="infer_depth_anything", auto_connect=True)
 
 # Run directly on your image
-wf.run_on(url="https://github.com/Ikomia-dev/notebooks/blob/main/examples/img/img_dog.png?raw=true")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/refs/heads/main/examples/img/img_dog.png")
 
 # Display the results
 display(algo.get_input(0).get_image())
@@ -83,7 +83,7 @@ algo.set_parameters({
         'cuda':'True'})
 
 # Run directly on your image
-wf.run_on(url="https://github.com/Ikomia-dev/notebooks/blob/main/examples/img/img_dog.png?raw=true")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/refs/heads/main/examples/img/img_dog.png")
 
 # Display the results
 display(algo.get_input(0).get_image())
@@ -104,7 +104,7 @@ wf = Workflow()
 algo = wf.add_task(name="infer_depth_anything", auto_connect=True)
 
 # Run on your image  
-wf.run_on(url="https://github.com/Ikomia-dev/notebooks/blob/main/examples/img/img_dog.png?raw=true")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/refs/heads/main/examples/img/img_dog.png")
 
 # Iterate over outputs
 for output in algo.get_outputs():
